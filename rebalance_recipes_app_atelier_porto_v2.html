@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReBALANCE Recipes App. | atelier Porto</title>
+<style>
+  :root{
+    --mauve-pink: #d9b8c4;
+    --mauve-pink-deep: #c79cae;
+    --mauve-gray: #cdc3c9;
+    --mauve-gray-pale: #e6dfe3;
+    --ink: #4a3b43;
+    --ink-soft: #7a6670;
+    --blue: #7d93b3;
+    --blue-deep: #52698f;
+    --green: #8a9e83;
+    --green-deep: #61765a;
+    --orange: #c98a5e;
+    --orange-deep: #a76a3f;
+    --red-deep: #a75252;
+    --line: rgba(74,59,67,0.18);
+    --shadow: 0 6px 18px rgba(90,60,70,0.14);
+    --virgin-bg: #fbe9dd;
+  }
+  *{ box-sizing: border-box; }
+  html,body{
+    margin:0; padding:0;
+    font-family: "Meiryo", "メイリオ", "Hiragino Kaku Gothic ProN", sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(ellipse at 15% 10%, rgba(255,255,255,0.35), transparent 45%),
+      radial-gradient(ellipse at 85% 25%, var(--mauve-gray-pale) 0%, transparent 55%),
+      radial-gradient(ellipse at 30% 80%, var(--mauve-pink-deep) 0%, transparent 50%),
+      radial-gradient(ellipse at 75% 90%, var(--mauve-gray) 0%, transparent 50%),
+      linear-gradient(155deg, var(--mauve-pink) 0%, var(--mauve-gray-pale) 42%, var(--mauve-pink) 68%, var(--mauve-gray) 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+  .app{ max-width: 520px; margin: 0 auto; padding: 28px 16px 60px; }
+  .letterhead{ text-align: center; margin-bottom: 22px; }
+  .salon-logo{ width: 70px; height:auto; display:block; margin: 0 auto 6px; }
+  .salon-name{
+    font-family: "UD Digital 教科書体 N-R", "游教科書体", "Hiragino Mincho ProN", serif;
+    font-size: 15px; letter-spacing: 0.2em; color: var(--ink-soft); margin: 0 0 10px;
+  }
+  .app-title{
+    font-family: "UD Digital 教科書体 N-R", "游教科書体", "Hiragino Mincho ProN", serif;
+    font-size: 24px; font-weight: 700; margin: 0; line-height: 1.4;
+  }
+  .app-sub{
+    font-family: "UD Digital 教科書体 N-R", "游教科書体", "Hiragino Mincho ProN", serif;
+    font-size: 13px; color: var(--ink-soft); margin: 4px 0 10px;
+  }
+  .credit{ font-size: 11px; color: var(--ink-soft); letter-spacing: 0.12em; }
+
+  .card{
+    background: rgba(255,255,255,0.62);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 18px;
+    padding: 18px 16px 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .card-head{ display:flex; align-items: baseline; gap: 8px; margin-bottom: 14px; }
+  .card-head .mark{ font-family: "UD Digital 教科書体 N-R", "Hiragino Mincho ProN", serif; font-size: 20px; color: var(--mauve-pink-deep); }
+  .card-head h2{ margin:0; font-size: 16px; font-weight: 700; }
+  .card-desc{ font-size: 12px; color: var(--ink-soft); margin: -8px 0 12px; }
+
+  .subgroup{ margin-bottom: 16px; }
+  .subgroup:last-child{ margin-bottom: 0; }
+  .subgroup-title{ font-size: 12.5px; font-weight: 700; color: var(--ink); margin: 0 0 8px; display:flex; align-items:center; gap:6px; }
+  .subgroup-title .bullet{ display:inline-flex; align-items:center; justify-content:center; width: 16px; height:16px; border-radius:50%; background: var(--ink); color:#fff; font-size:10px; flex-shrink:0; }
+
+  .btn-row{ display:flex; gap: 6px; flex-wrap: wrap; }
+  .btn-row > .opt-btn{ flex: 1 1 0; min-width: 60px; }
+  .opt-btn{
+    border: none; border-radius: 12px; padding: 10px 4px;
+    font-size: 12px; font-weight: 600; color: var(--ink);
+    background: rgba(255,255,255,0.75);
+    box-shadow: inset 0 0 0 1px var(--line);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  }
+  .opt-btn:active{ transform: scale(0.97); }
+  .opt-btn.selected{ color: #fff; }
+  .opt-btn.thickness.selected{ background: var(--blue-deep); }
+  .opt-btn.hardness.selected{ background: var(--green-deep); }
+  .opt-btn.curl.selected{ background: var(--orange-deep); }
+  .opt-btn.a-level.selected{ background: var(--ink); }
+  .opt-btn.bleach.selected{ background: var(--red-deep); }
+  .opt-btn.perm.selected{ background: var(--green-deep); }
+  .opt-btn.koshi.selected{ background: var(--blue-deep); }
+  .opt-btn.subq.selected{ background: var(--orange-deep); }
+  .opt-btn.need.selected{ background: var(--ink); }
+
+  .curl-row{ display:flex; gap:8px; }
+  .curl-card{
+    flex:1 1 0; display:flex; flex-direction:column; align-items:stretch; gap:8px;
+    background: rgba(255,255,255,0.85); border: 1px solid var(--line); border-radius: 14px;
+    padding: 10px 8px 10px; cursor:pointer;
+  }
+  .curl-card.selected{ border-color: var(--orange-deep); background: rgba(255,255,255,0.97); box-shadow: 0 0 0 1px var(--orange-deep) inset; }
+  .curl-illust-box{ background: #f1eef0; border-radius: 10px; height: 56px; display:flex; align-items:center; justify-content:center; }
+  .curl-illust-box svg{ width: 90%; height: 70%; }
+  .curl-radio-row{ display:flex; align-items:center; gap:6px; justify-content:center; }
+  .radio{ width:14px; height:14px; border-radius:50%; border:1.5px solid var(--ink-soft); flex-shrink:0; position:relative; }
+  .radio.on{ border-color: var(--orange-deep); }
+  .radio.on::after{ content:""; position:absolute; inset:2.5px; border-radius:50%; background: var(--orange-deep); }
+  .curl-radio-row .clabel{ font-size:12px; font-weight:600; color: var(--ink); }
+
+  .virgin-note{
+    margin-top: 10px; padding: 10px 12px; border-radius: 12px;
+    background: var(--virgin-bg); font-size: 12px; color: var(--ink);
+    line-height: 1.6;
+  }
+  .subq{
+    margin-top: 10px; padding: 10px 12px; border-radius: 12px;
+    background: rgba(255,255,255,0.55);
+  }
+  .subq .subgroup-title{ margin-bottom: 8px; }
+
+  .hidden{ display:none !important; }
+
+  .score-strip{ display:flex; justify-content: space-between; align-items:center; font-size: 12px; color: var(--ink-soft); }
+  .score-strip b{ color: var(--ink); font-size: 14px; }
+
+  .apply-input{ display:flex; align-items:center; gap:8px; margin-top: 4px; justify-content:center; }
+  .apply-input input{ width: 140px; padding: 12px 14px; font-size: 22px; font-weight:700; text-align:center; border-radius: 10px; border: 1px solid var(--line); background: rgba(255,255,255,0.8); }
+  .apply-input span{ font-size: 14px; color: var(--ink-soft); }
+
+  .result-empty{ font-size: 12.5px; color: var(--ink-soft); text-align:center; padding: 10px 4px; }
+  .recipe-line{ display:flex; justify-content: space-between; align-items:center; font-size: 13px; padding: 4px 0; gap: 10px; }
+  .recipe-line .name{ font-weight: 700; flex-shrink: 0; }
+
+  table.result-table{ width:100%; border-collapse: collapse; font-size: 15px; margin-top: 8px; }
+  table.result-table th, table.result-table td{ padding: 9px 6px; text-align: right; border-bottom: 1px solid var(--line); }
+  table.result-table th:first-child, table.result-table td:first-child{ text-align: left; }
+  table.result-table thead th{ font-size: 11px; color: var(--ink-soft); font-weight: 600; }
+  table.result-table td.gram{ font-weight: 800; font-size: 17px; }
+  table.result-table td.pct{ font-size: 11px; color: var(--ink-soft); }
+  .swatch{ display:inline-block; width:9px; height:9px; border-radius: 2px; margin-right:6px; }
+
+  .total-box{
+    margin-top: 14px; padding: 14px; border-radius: 14px;
+    background: linear-gradient(120deg, rgba(255,255,255,0.85), rgba(255,255,255,0.55));
+    box-shadow: inset 0 0 0 1px var(--line); text-align:center;
+  }
+  .total-box .label{ font-size: 11.5px; color: var(--ink-soft); }
+  .total-box .value{ font-size: 26px; font-weight: 800; margin-top: 2px; }
+  .total-box .value span{ font-size: 14px; font-weight: 600; }
+  .total-box .breakdown-line{ margin-top:8px; font-size: 11.5px; color: var(--ink-soft); }
+  .legend-note{ font-size: 10px; color: var(--ink-soft); text-align:center; margin: 8px 0 0; }
+  .share-btn{
+    display:block; width:100%; margin: 14px auto 0; padding: 12px;
+    border-radius: 12px; border: none; background: var(--ink); color:#fff;
+    font-size: 13px; font-weight:700; cursor:pointer;
+  }
+  .share-btn:active{ transform: scale(0.98); }
+  .share-status{ text-align:center; font-size: 11px; color: var(--green-deep); margin: 6px 0 0; min-height: 14px; }
+  table.result-table td.pct{ font-size: 10.5px; }
+
+  .disclaimer{ margin-top: 24px; padding: 16px 14px; border-radius: 14px; background: rgba(255,255,255,0.5); font-size: 10.5px; line-height: 1.75; color: var(--ink-soft); }
+  .disclaimer h3{ font-size: 11.5px; margin: 0 0 8px; color: var(--ink); }
+  .disclaimer p{ margin: 0 0 4px; }
+
+  .reset-btn{ display:block; margin: 18px auto 0; padding: 8px 22px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink-soft); font-size: 12px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="letterhead">
+    <img class="salon-logo" src="data:image/jpeg;base64,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" alt="atelier Porto logo">
+    <p class="salon-name">a t e l i e r&nbsp;&nbsp;&nbsp;P o r t o</p>
+    <h1 class="app-title">ReBALANCE Recipes App.</h1>
+    <p class="app-sub">〜リバランス レシピ アプリ〜</p>
+    <p class="credit">Produced OLiNK</p>
+  </div>
+
+  <!-- ① 毛髪診断 -->
+  <div class="card">
+    <div class="card-head"><span class="mark">①</span><h2>毛髪診断</h2></div>
+    <div class="subgroup">
+      <p class="subgroup-title"><span class="bullet">1</span>髪の毛の太さ</p>
+      <div class="btn-row" id="row-thickness"></div>
+    </div>
+    <div class="subgroup">
+      <p class="subgroup-title"><span class="bullet">2</span>髪の毛の硬さ</p>
+      <div class="btn-row" id="row-hardness"></div>
+    </div>
+    <div class="subgroup">
+      <p class="subgroup-title"><span class="bullet">3</span>癖の強さ</p>
+      <div class="curl-row" id="row-curl"></div>
+    </div>
+  </div>
+
+  <!-- ② ダメージレベル診断 -->
+  <div class="card">
+    <div class="card-head"><span class="mark">②</span><h2>ダメージレベル診断</h2></div>
+    <div class="subgroup">
+      <p class="subgroup-title"><span class="bullet">a</span>髪の毛の明度</p>
+      <div class="btn-row" id="row-alevel"></div>
+      <div class="subq hidden" id="subq-somegami">
+        <p class="subgroup-title">黒染め歴はありますか？</p>
+        <div class="btn-row" id="row-somegami"></div>
+      </div>
+      <div class="subq hidden" id="subq-bleachhist">
+        <p class="subgroup-title">その黒染めの前にブリーチ歴はありますか？</p>
+        <div class="btn-row" id="row-bleachhist"></div>
+      </div>
+      <div class="virgin-note hidden" id="virgin-note">
+        バージン毛相当のため、b〜dの質問は不要です。①の「太さ」に応じてチオハード配合比を自動調整します。
+      </div>
+    </div>
+    <div class="subgroup" id="group-bcd">
+      <p class="subgroup-title"><span class="bullet">b</span>ブリーチ回数</p>
+      <div class="btn-row" id="row-bleach"></div>
+    </div>
+    <div class="subgroup" id="group-c">
+      <p class="subgroup-title"><span class="bullet">c</span>縮毛矯正・パーマ頻度</p>
+      <div class="btn-row" id="row-perm"></div>
+    </div>
+    <div class="subgroup" id="group-d">
+      <p class="subgroup-title"><span class="bullet">d</span>ウェット時のハリコシ</p>
+      <div class="btn-row" id="row-koshi"></div>
+    </div>
+  </div>
+
+  <!-- ③ ご要望 -->
+  <div class="card">
+    <div class="card-head"><span class="mark">③</span><h2>お客様のご要望</h2></div>
+    <p class="card-desc">薬剤選定の前に、施術方針を選択してください</p>
+    <div class="btn-row" id="row-need"></div>
+  </div>
+
+  <!-- ④ 薬剤選定・計算結果 -->
+  <div class="card">
+    <div class="card-head"><span class="mark">④</span><h2>薬剤選定</h2></div>
+    <div id="recipe-summary" class="result-empty">①〜③をすべて選択すると、レシピが表示されます</div>
+
+    <div id="apply-section" class="hidden" style="margin-top:14px;">
+      <p class="subgroup-title" style="justify-content:center;">お客様に塗布する量</p>
+      <div class="apply-input">
+        <input type="number" id="apply-weight" placeholder="0" min="0" step="0.1">
+        <span>g</span>
+      </div>
+
+      <table class="result-table hidden" id="result-table">
+        <thead><tr><th>薬剤名</th><th>配合量</th><th>TGA</th><th>CA</th><th>TGr</th></tr></thead>
+        <tbody id="result-tbody"></tbody>
+      </table>
+
+      <div class="total-box hidden" id="total-box">
+        <div class="label">総還元値</div>
+        <div class="value" id="total-value">0.00<span>%</span></div>
+        <div class="breakdown-line" id="total-breakdown"></div>
+      </div>
+      <p class="legend-note">TGA：チオグリコール酸アンモニウム／CA：システアミン／TGr：チオグリセリン</p>
+      <button class="share-btn hidden" id="share-btn" type="button">診断結果をコピー（LINE等で共有）</button>
+      <p class="share-status" id="share-status"></p>
+    </div>
+  </div>
+
+  <button class="reset-btn" id="reset-btn">最初からやり直す</button>
+
+  <div class="disclaimer">
+    <h3>■ 本ツールについての重要事項</h3>
+    <p>・本ツールは、各メーカー様が公表されている薬剤スペックをもとに、混合時の還元剤濃度を計算するための補助ツールです。</p>
+    <p>・本ツールは、各メーカー様による公式な認証・後援を受けたものではありません。本ツールの内容について、各メーカー様は一切の責任を負うものではありません。</p>
+    <p>・本ツール上に表示される濃度・成分情報は、推計値を含みます。正確な値については、必ず各メーカー様の製品資料・指示に従ってください。</p>
+    <p>・バージン毛カテゴリーで使用するチオハードタイプの配合は、自主基準の範囲を超える自己責任枠での運用です。ご利用は施術者の責任のもとお願いいたします。</p>
+    <p>・本ツール内で言及される製品名・商品名は、各メーカー様の商標・登録商標です。本ツールは、これらの製品を識別する目的のみで使用しており、商標権者との商業的関係を示すものではありません。</p>
+  </div>
+
+</div>
+
+<script>
+/* ===================== 薬剤マスタ ===================== */
+const PRODUCTS = {
+  thio:  { name:"チオハードタイプ",       tga:10.5, cam:0,  tg:0,   color:"#5b7bab" },
+  yellow:{ name:"ReBALANCE Yellow",       tga:0.4,  cam:0,  tg:0.4, color:"#d98a3d" },
+  pale:  { name:"ReBALANCE Pale Yellow",  tga:0,    cam:0,  tg:0.2, color:"#e0c341" },
+  riko:  { name:"RIKO Treatment",         tga:0,    cam:0,  tg:0,   color:"#e0a3bb" },
+  booster:{name:"ReBALANCE Booster",      tga:0,    cam:29, tg:0,   color:"#1c1a1c" },
+};
+function actOf(p){ return p.tga + p.cam + p.tg; }
+
+/* ===================== ①毛質診断 定義（Boosterの後乗せ調整用） ===================== */
+const THICKNESS = [
+  {code:"th1", label:"太",   adj:10, thioRatio:3},
+  {code:"th2", label:"普通", adj:0,  thioRatio:2},
+  {code:"th3", label:"細",   adj:-5, thioRatio:1},
+  {code:"th4", label:"極細", adj:-10,thioRatio:0.5},
+];
+const HARDNESS = [
+  {code:"h1", label:"硬",   adj:10},
+  {code:"h2", label:"普通", adj:0},
+  {code:"h3", label:"柔",   adj:-5},
+  {code:"h4", label:"極柔", adj:-10},
+];
+const CURL = [
+  {code:"c1", label:"強", adj:10, amp:14},
+  {code:"c2", label:"中", adj:0,  amp:8},
+  {code:"c3", label:"弱", adj:-10,amp:3},
+];
+const QUALITY_CAP = 1.2;
+
+/* ===================== ②ダメージレベル診断 定義 ===================== */
+const A_LEVELS = [
+  {code:"a0",  label:"ヘアカラー履歴なし", virgin:true,  boost:25, tier:0},
+  {code:"kuro",label:"黒",                 virgin:null,  boost:null, tier:null}, // サブ質問へ
+  {code:"a2",  label:"〜7LV",  virgin:false, boost:20, tier:2},
+  {code:"a3",  label:"〜10LV", virgin:false, boost:15, tier:3},
+  {code:"a4",  label:"〜13LV", virgin:false, boost:10, tier:4},
+  {code:"a5",  label:"〜16LV", virgin:false, boost:5,  tier:5},
+  {code:"a6",  label:"17LV〜", virgin:false, boost:2,  tier:6},
+];
+// 「黒」のサブ分岐
+const KURO_SUB = {
+  none:  {code:"a1x", label:"地毛(バージン相当)", virgin:true,  boost:25, tier:0},
+};
+// 黒染めありの場合、さらにブリーチ歴を確認
+const KURO_BLEACH_SUB = {
+  no:  {code:"a1y", label:"黒染め(ブリーチ歴なし)", virgin:false, boost:20, tier:2},
+  yes: {code:"a1z", label:"黒染め(ブリーチ歴あり)", virgin:false, boost:10, tier:4},
+};
+
+const BLEACH = [
+  {code:"b1", label:"なし",   mult:1.0, tier:0},
+  {code:"b2", label:"1〜2回", mult:0.75,tier:1},
+  {code:"b3", label:"3回〜",  mult:0.2, tier:2},
+];
+const PERM = [
+  {code:"c1", label:"なし",        mult:1.0, tier:0},
+  {code:"c2", label:"1〜3ヶ月毎",  mult:0.8, tier:1},
+  {code:"c3", label:"4〜6ヶ月毎",  mult:0.9, tier:0.5},
+];
+const KOSHI = [
+  {code:"d1", label:"あり", mult:1.0, tier:0},
+  {code:"d2", label:"なし", mult:0.85,tier:1},
+];
+
+/* ===================== フェーズ・端点パラメータ ===================== */
+const PARAMS = {
+  boosterFloor: 0.05,
+  Tmax: 10,
+  Aphase: 6,        // A: Yellow単独→Yellow+RIKO 切替T
+  Bphase1: 3,        // B: Yellow+PaleYellow→PaleYellow単独 切替T
+  Bphase3: 7,        // B: PaleYellow単独→PaleYellow+RIKO 切替T
+  BinitY: 0.3,       // B初期(T=0)のPaleYellow比率
+  rikoMax: 0.75,      // RIKO比率の上限(1:3相当)
+  virginBooster: 25, // バージン毛共通Booster%(太さでは変えない)
+};
+
+/* ===================== 状態 ===================== */
+const state = {
+  thickness:null, hardness:null, curl:null,
+  aCode:null, aBoostBase:null, aTier:null, isVirgin:null,
+  kuroBranch:null, // "none" | "some_no" | "some_yes"
+  bleach:null, perm:null, koshi:null,
+  need:null,
+};
+
+/* ===================== UI構築ヘルパー ===================== */
+function mkBtn(cls, html, onClick){
+  const btn = document.createElement("button");
+  btn.className = "opt-btn " + cls;
+  btn.innerHTML = html;
+  btn.addEventListener("click", onClick);
+  return btn;
+}
+function selectOnly(container, btn){
+  [...container.children].forEach(c=>c.classList.remove("selected"));
+  btn.classList.add("selected");
+}
+
+/* ① 太さ・硬さ */
+(function(){
+  const el = document.getElementById("row-thickness");
+  THICKNESS.forEach(item=>{
+    const btn = mkBtn("thickness", item.label, ()=>{
+      state.thickness = item;
+      selectOnly(el, btn);
+      update();
+    });
+    el.appendChild(btn);
+  });
+})();
+(function(){
+  const el = document.getElementById("row-hardness");
+  HARDNESS.forEach(item=>{
+    const btn = mkBtn("hardness", item.label, ()=>{
+      state.hardness = item;
+      selectOnly(el, btn);
+      update();
+    });
+    el.appendChild(btn);
+  });
+})();
+function curlWaveSVG(cycles, amp){
+  // なめらかな二次ベジェで自然な毛髪カーブを描く
+  const W=180, H=60, midY=H/2;
+  const segs = cycles*2;
+  const segW = W/segs;
+  let d = `M0,${midY}`;
+  for(let i=0;i<segs;i++){
+    const cx = i*segW + segW/2;
+    const cy = midY + (i%2===0? -amp: amp);
+    const ex = (i+1)*segW;
+    d += ` Q${cx.toFixed(1)},${cy.toFixed(1)} ${ex.toFixed(1)},${midY}`;
+  }
+  return `<svg viewBox="0 0 ${W} ${H}" fill="none"><path d="${d}" stroke="#2b2b2b" stroke-width="3.2" stroke-linecap="round" fill="none"/></svg>`;
+}
+(function(){
+  const el = document.getElementById("row-curl");
+  const shapes = { "c1":{cycles:4.5, amp:9}, "c2":{cycles:2, amp:13}, "c3":{cycles:1, amp:12} };
+  CURL.forEach(item=>{
+    const sh = shapes[item.code];
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "curl-card";
+    card.innerHTML = `
+      <div class="curl-illust-box">${curlWaveSVG(sh.cycles, sh.amp)}</div>
+      <div class="curl-radio-row"><span class="radio"></span><span class="clabel">${item.label}</span></div>
+    `;
+    card.addEventListener("click", ()=>{
+      state.curl = item;
+      [...el.children].forEach(c=>{ c.classList.remove("selected"); c.querySelector(".radio").classList.remove("on"); });
+      card.classList.add("selected");
+      card.querySelector(".radio").classList.add("on");
+      update();
+    });
+    el.appendChild(card);
+  });
+})();
+
+/* ② a 明度 */
+function applyAResult(code, label, virgin, boost, tier){
+  state.aCode = code; state.aLabel = label; state.isVirgin = virgin; state.aBoostBase = boost; state.aTier = tier;
+  document.getElementById("virgin-note").classList.toggle("hidden", !virgin);
+  document.getElementById("group-bcd").classList.toggle("hidden", virgin);
+  document.getElementById("group-c").classList.toggle("hidden", virgin);
+  document.getElementById("group-d").classList.toggle("hidden", virgin);
+  if(virgin){ state.bleach=null; state.perm=null; state.koshi=null; }
+  update();
+}
+(function(){
+  const el = document.getElementById("row-alevel");
+  A_LEVELS.forEach(item=>{
+    const btn = mkBtn("a-level", item.label, ()=>{
+      selectOnly(el, btn);
+      document.getElementById("subq-somegami").classList.toggle("hidden", item.code!=="kuro");
+      document.getElementById("subq-bleachhist").classList.add("hidden");
+      if(item.code === "kuro"){
+        state.aCode=null; state.isVirgin=null;
+        document.getElementById("virgin-note").classList.add("hidden");
+        document.getElementById("group-bcd").classList.add("hidden");
+        document.getElementById("group-c").classList.add("hidden");
+        document.getElementById("group-d").classList.add("hidden");
+        update();
+      } else {
+        applyAResult(item.code, item.label, item.virgin, item.boost, item.tier);
+      }
+    });
+    el.appendChild(btn);
+  });
+})();
+(function(){
+  const el = document.getElementById("row-somegami");
+  const optNone = mkBtn("subq", "なし(地毛)", ()=>{
+    selectOnly(el, optNone);
+    document.getElementById("subq-bleachhist").classList.add("hidden");
+    const k = KURO_SUB.none;
+    applyAResult(k.code, k.label, k.virgin, k.boost, k.tier);
+  });
+  const optSome = mkBtn("subq", "あり(黒染めしている)", ()=>{
+    selectOnly(el, optSome);
+    document.getElementById("subq-bleachhist").classList.remove("hidden");
+    state.aCode=null; state.isVirgin=null;
+    document.getElementById("virgin-note").classList.add("hidden");
+    document.getElementById("group-bcd").classList.add("hidden");
+    document.getElementById("group-c").classList.add("hidden");
+    document.getElementById("group-d").classList.add("hidden");
+    update();
+  });
+  el.appendChild(optNone); el.appendChild(optSome);
+})();
+(function(){
+  const el = document.getElementById("row-bleachhist");
+  const optNo = mkBtn("subq", "なし", ()=>{
+    selectOnly(el, optNo);
+    const k = KURO_BLEACH_SUB.no;
+    applyAResult(k.code, k.label, k.virgin, k.boost, k.tier);
+  });
+  const optYes = mkBtn("subq", "あり(ブリーチ→黒染め)", ()=>{
+    selectOnly(el, optYes);
+    const k = KURO_BLEACH_SUB.yes;
+    applyAResult(k.code, k.label, k.virgin, k.boost, k.tier);
+  });
+  el.appendChild(optNo); el.appendChild(optYes);
+})();
+
+/* b, c, d */
+(function(){
+  const el = document.getElementById("row-bleach");
+  BLEACH.forEach(item=>{
+    const btn = mkBtn("bleach", item.label, ()=>{ state.bleach=item; selectOnly(el,btn); update(); });
+    el.appendChild(btn);
+  });
+})();
+(function(){
+  const el = document.getElementById("row-perm");
+  PERM.forEach(item=>{
+    const btn = mkBtn("perm", item.label, ()=>{ state.perm=item; selectOnly(el,btn); update(); });
+    el.appendChild(btn);
+  });
+})();
+(function(){
+  const el = document.getElementById("row-koshi");
+  KOSHI.forEach(item=>{
+    const btn = mkBtn("koshi", item.label, ()=>{ state.koshi=item; selectOnly(el,btn); update(); });
+    el.appendChild(btn);
+  });
+})();
+
+/* ③ ご要望 */
+(function(){
+  const el = document.getElementById("row-need");
+  [["伸び重視","growth"],["ケア重視","care"]].forEach(pair=>{
+    const btn = mkBtn("need", pair[0], ()=>{ state.need=pair[1]; selectOnly(el,btn); update(); });
+    el.appendChild(btn);
+  });
+})();
+
+/* ===================== 計算ロジック ===================== */
+let lastRecipe = null;
+
+function isReady(){
+  if(!state.thickness || !state.hardness || !state.curl || !state.need) return false;
+  if(state.aCode==null) return false;
+  if(!state.isVirgin){
+    if(!state.bleach || !state.perm || !state.koshi) return false;
+  }
+  return true;
+}
+
+function computeRecipe(){
+  const need = state.need; // "growth" | "care"
+  let yellow=0, pale=0, riko=0, thio=0, boosterBase;
+
+  if(state.isVirgin){
+    thio = state.thickness.thioRatio;
+    yellow = 1;
+    boosterBase = PARAMS.virginBooster;
+  } else {
+    const T = state.aTier + state.bleach.tier + state.perm.tier + state.koshi.tier;
+    const trigger = (state.bleach.code==="b3") && (state.perm.code==="c2"||state.perm.code==="c3") && (state.koshi.code==="d2");
+    boosterBase = state.aBoostBase * state.bleach.mult * state.perm.mult * state.koshi.mult;
+    boosterBase = Math.max(PARAMS.boosterFloor, boosterBase);
+
+    if(need==="growth"){
+      if(trigger){ riko = PARAMS.rikoMax; }
+      else if(T < PARAMS.Aphase){ riko = 0; }
+      else { riko = PARAMS.rikoMax * (T-PARAMS.Aphase)/(PARAMS.Tmax-PARAMS.Aphase); }
+      yellow = 1 - riko; pale = 0; thio = 0;
+    } else {
+      if(trigger){ riko = PARAMS.rikoMax; pale = 1-PARAMS.rikoMax; yellow=0; }
+      else if(T <= PARAMS.Bphase1){
+        pale = PARAMS.BinitY + (1-PARAMS.BinitY) * T / PARAMS.Bphase1;
+        yellow = 1-pale; riko=0;
+      } else if(T < PARAMS.Bphase3){
+        pale = 1; yellow=0; riko=0;
+      } else {
+        riko = PARAMS.rikoMax * (T-PARAMS.Bphase3)/(PARAMS.Tmax-PARAMS.Bphase3);
+        pale = 1-riko; yellow=0;
+      }
+    }
+  }
+
+  // ①毛質による後乗せ調整（上限120%、下限キャップなし）
+  const totalAdj = state.thickness.adj + state.curl.adj + state.hardness.adj;
+  const qualityMult = Math.min(QUALITY_CAP, 1 + totalAdj/100);
+  const finalBooster = boosterBase * qualityMult;
+
+  const ratioSum = yellow+pale+riko+thio;
+  const Vavg = (yellow*actOf(PRODUCTS.yellow) + pale*actOf(PRODUCTS.pale) + riko*actOf(PRODUCTS.riko) + thio*actOf(PRODUCTS.thio)) / ratioSum;
+  const TR = (Vavg + (finalBooster/100)*actOf(PRODUCTS.booster)) / (1 + finalBooster/100);
+
+  return { yellow,pale,riko,thio, ratioSum, boosterBase, qualityMult, finalBooster, TR, need };
+}
+
+function update(){
+  const summaryEl = document.getElementById("recipe-summary");
+  const applySection = document.getElementById("apply-section");
+
+  if(!isReady()){
+    summaryEl.classList.remove("hidden");
+    summaryEl.textContent = "①〜③をすべて選択すると、レシピが表示されます";
+    applySection.classList.add("hidden");
+    document.getElementById("result-table").classList.add("hidden");
+    document.getElementById("total-box").classList.add("hidden");
+    document.getElementById("share-btn").classList.add("hidden");
+    lastRecipe = null;
+    return;
+  }
+
+  const recipe = computeRecipe();
+  lastRecipe = recipe;
+  const parts = [];
+  if(recipe.thio>0) parts.push(`チオハード ${recipe.thio}`);
+  if(recipe.yellow>0) parts.push(`Yellow ${recipe.yellow.toFixed(2)}`);
+  if(recipe.pale>0) parts.push(`PaleYellow ${recipe.pale.toFixed(2)}`);
+  if(recipe.riko>0) parts.push(`RIKO ${recipe.riko.toFixed(2)}`);
+
+  summaryEl.classList.remove("hidden");
+  summaryEl.innerHTML = `
+    <div class="recipe-line"><span class="name">要望</span><span>${recipe.need==="growth"?"伸び重視":"ケア重視"}</span></div>
+    <div class="recipe-line"><span class="name">ベース配合比</span><span>${parts.join(" : ")}</span></div>
+    <div class="recipe-line"><span class="name">Booster添加量</span><span>${recipe.finalBooster.toFixed(2)}%</span></div>
+    <div class="recipe-line"><span class="name">総還元値(目安)</span><span>${recipe.TR.toFixed(3)}%</span></div>
+  `;
+
+  applySection.classList.remove("hidden");
+  document.getElementById("share-btn").classList.remove("hidden");
+  computeAndRenderAmounts(recipe);
+}
+
+function computeAndRenderAmounts(recipe){
+  const totalG = parseFloat(document.getElementById("apply-weight").value);
+  const tbody = document.getElementById("result-tbody");
+  const resultTable = document.getElementById("result-table");
+  const totalBox = document.getElementById("total-box");
+
+  if(!totalG || totalG<=0){
+    resultTable.classList.add("hidden");
+    totalBox.classList.add("hidden");
+    return;
+  }
+
+  const baseTotal = totalG / (1 + recipe.finalBooster/100);
+  const boosterG = totalG - baseTotal;
+  const rows = [];
+  if(recipe.thio>0)  rows.push({key:"thio",   g: baseTotal*(recipe.thio/recipe.ratioSum)});
+  if(recipe.yellow>0)rows.push({key:"yellow", g: baseTotal*(recipe.yellow/recipe.ratioSum)});
+  if(recipe.pale>0)  rows.push({key:"pale",   g: baseTotal*(recipe.pale/recipe.ratioSum)});
+  if(recipe.riko>0)  rows.push({key:"riko",   g: baseTotal*(recipe.riko/recipe.ratioSum)});
+  rows.push({key:"booster", g: boosterG});
+
+  tbody.innerHTML = "";
+  let totalTGA=0, totalCAM=0, totalTG=0;
+  rows.forEach(row=>{
+    const p = PRODUCTS[row.key];
+    const cTGA = (row.g * p.tga/100) / totalG * 100;
+    const cCAM = (row.g * p.cam/100) / totalG * 100;
+    const cTG  = (row.g * p.tg /100) / totalG * 100;
+    totalTGA += cTGA; totalCAM += cCAM; totalTG += cTG;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><span class="swatch" style="background:${p.color}"></span>${p.name}</td>
+      <td class="gram">${row.g.toFixed(1)}g</td>
+      <td class="pct">${cTGA.toFixed(3)}%</td>
+      <td class="pct">${cCAM.toFixed(3)}%</td>
+      <td class="pct">${cTG.toFixed(3)}%</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  resultTable.classList.remove("hidden");
+  totalBox.classList.remove("hidden");
+  document.getElementById("total-value").innerHTML = `${recipe.TR.toFixed(3)}<span>%</span>`;
+  document.getElementById("total-breakdown").innerHTML =
+    `TGA ${totalTGA.toFixed(3)}%　／　CA ${totalCAM.toFixed(3)}%　／　TGr ${totalTG.toFixed(3)}%`;
+}
+
+document.getElementById("apply-weight").addEventListener("input", ()=>{
+  if(!isReady()) return;
+  computeAndRenderAmounts(computeRecipe());
+});
+document.getElementById("reset-btn").addEventListener("click", ()=>location.reload());
+
+function buildShareText(){
+  const r = lastRecipe || computeRecipe();
+  const lines = [];
+  lines.push("【ReBALANCE Recipe App. － atelier Porto】");
+  lines.push("");
+  lines.push("■毛質診断");
+  lines.push(`太さ：${state.thickness.label}／硬さ：${state.hardness.label}／癖：${state.curl.label}`);
+  lines.push("");
+  lines.push("■ダメージレベル診断");
+  if(state.isVirgin){
+    lines.push(`明度：${state.aLabel}`);
+  } else {
+    lines.push(`明度：${state.aLabel}／ブリーチ：${state.bleach.label}／縮毛矯正・パーマ：${state.perm.label}／ハリコシ：${state.koshi.label}`);
+  }
+  lines.push("");
+  lines.push(`■ご要望：${state.need==="growth"?"伸び重視":"ケア重視"}`);
+  lines.push("");
+  lines.push("■レシピ");
+  const parts = [];
+  if(r.thio>0) parts.push(`チオハード ${r.thio}`);
+  if(r.yellow>0) parts.push(`Yellow ${r.yellow.toFixed(2)}`);
+  if(r.pale>0) parts.push(`PaleYellow ${r.pale.toFixed(2)}`);
+  if(r.riko>0) parts.push(`RIKO ${r.riko.toFixed(2)}`);
+  lines.push(`ベース配合比：${parts.join(" : ")}`);
+  lines.push(`Booster添加量：${r.finalBooster.toFixed(2)}%`);
+  lines.push(`総還元値：${r.TR.toFixed(3)}%`);
+
+  const totalG = parseFloat(document.getElementById("apply-weight").value);
+  if(totalG && totalG>0){
+    const baseTotal = totalG / (1 + r.finalBooster/100);
+    const boosterG = totalG - baseTotal;
+    let totalTGA=0, totalCAM=0, totalTG=0;
+    const gramLines = [];
+    const rowsDef = [
+      ["thio", r.thio], ["yellow", r.yellow], ["pale", r.pale], ["riko", r.riko]
+    ];
+    rowsDef.forEach(([key, ratio])=>{
+      if(ratio>0){
+        const g = baseTotal * (ratio/r.ratioSum);
+        const p = PRODUCTS[key];
+        totalTGA += (g*p.tga/100)/totalG*100;
+        totalCAM += (g*p.cam/100)/totalG*100;
+        totalTG  += (g*p.tg /100)/totalG*100;
+        gramLines.push(`　${p.name}：${g.toFixed(1)}g`);
+      }
+    });
+    const pBooster = PRODUCTS.booster;
+    totalCAM += (boosterG*pBooster.cam/100)/totalG*100;
+    gramLines.push(`　${pBooster.name}：${boosterG.toFixed(1)}g`);
+
+    lines.push("");
+    lines.push(`■塗布量：${totalG}g`);
+    lines.push(...gramLines);
+    lines.push(`内訳：TGA ${totalTGA.toFixed(3)}% ／ CA ${totalCAM.toFixed(3)}% ／ TGr ${totalTG.toFixed(3)}%`);
+  }
+  return lines.join("\n");
+}
+
+document.getElementById("share-btn").addEventListener("click", async ()=>{
+  const text = buildShareText();
+  const statusEl = document.getElementById("share-status");
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      await navigator.clipboard.writeText(text);
+    } else {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+    statusEl.textContent = "コピーしました。LINE等に貼り付けてご利用ください。";
+  } catch(e){
+    statusEl.textContent = "コピーに失敗しました。もう一度お試しください。";
+  }
+  setTimeout(()=>{ statusEl.textContent = ""; }, 4000);
+});
+
+update();
+</script>
+</body>
+</html>
